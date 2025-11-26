@@ -21,7 +21,7 @@ from sklearn.linear_model import Ridge
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import KFold
-from typing import Tuple, Optional, Dict
+from typing import Dict, Union
 
 
 class AutoITEEstimator:
@@ -36,9 +36,11 @@ class AutoITEEstimator:
 
     Parameters
     ----------
-    k : int or float, default=1000
+    k : int, float, or "auto", default="auto"
         Number of neighbors for local estimation.
-        If float < 1, interpreted as fraction of training data.
+        - "auto": Uses 10% of training samples (recommended)
+        - int: Exact number of neighbors
+        - float < 1: Fraction of training data
     alpha_global : float, default=1.0
         Ridge regularization for global model.
     alpha_local : float, default=0.01
@@ -68,14 +70,14 @@ class AutoITEEstimator:
     Examples
     --------
     >>> from autoite import AutoITEEstimator
-    >>> model = AutoITEEstimator(k=1000)
+    >>> model = AutoITEEstimator()  # Uses k="auto" (10% of samples)
     >>> model.fit(X_train, T_train, Y_train, Y_pre_train)
     >>> tau_pred = model.predict(X_test, Y_pre_test)
     """
 
     def __init__(
         self,
-        k: int = 1000,
+        k: Union[int, float, str] = "auto",
         alpha_global: float = 1.0,
         alpha_local: float = 0.01,
         cv_folds: int = 5,
@@ -148,8 +150,11 @@ class AutoITEEstimator:
         n = len(Y)
 
         # Determine actual k
-        if isinstance(self.k, float) and self.k < 1:
-            self.k_actual_ = int(self.k * n)
+        if self.k == "auto":
+            # Default: 10% of training samples
+            self.k_actual_ = max(int(0.10 * n), 20)  # Minimum 20 neighbors
+        elif isinstance(self.k, float) and self.k < 1:
+            self.k_actual_ = max(int(self.k * n), 20)
         else:
             self.k_actual_ = min(int(self.k), n - 1)
 
