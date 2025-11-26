@@ -52,8 +52,5 @@ env/
 .DS_Store
 Thumbs.db
 
-# Paper directory (contains draft PDF)
-paper/
-
 # Pytest
 .pytest_cache/
