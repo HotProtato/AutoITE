@@ -1,5 +1,10 @@
 # AutoITE: Automated Individual Treatment Effect Estimation
 
+[![PyPI version](https://badge.fury.io/py/autoite.svg)](https://badge.fury.io/py/autoite)
+[![CI](https://github.com/hotprotato/autoite/actions/workflows/ci.yml/badge.svg)](https://github.com/hotprotato/autoite/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+
 A residual-based approach to causal inference that detects latent heterogeneity through baseline coupling, enabling Just-in-Time discovery of treatment effects.
 
 ## Key Insight
@@ -9,7 +14,15 @@ Traditional causal inference methods condition on observed features, but latent 
 ## Installation
 
 ```bash
-pip install -r requirements.txt
+pip install autoite
+```
+
+For additional features:
+
+```bash
+pip install autoite[viz]        # Visualization (matplotlib, seaborn)
+pip install autoite[comparison] # SOTA comparison (econml, lightgbm)
+pip install autoite[all]        # Everything
 ```
 
 ## Quick Start
@@ -17,8 +30,8 @@ pip install -r requirements.txt
 ```python
 from autoite import AutoITEEstimator, BimodalityDiagnostic
 
-# Fit the model
-model = AutoITEEstimator(k=1000, alpha=1.0)
+# Fit the model (k="auto" uses 10% of samples by default)
+model = AutoITEEstimator()
 model.fit(X_train, T_train, Y_train, Y_pre_train)
 
 # Predict individual treatment effects
@@ -57,8 +70,9 @@ AutoITE achieves **59% lower MAE** than Causal Forest (0.095 vs 0.230). With 15%
 ### AutoITEEstimator
 Core estimator for individual treatment effect prediction.
 
-- `k`: Number of residual neighbors (default: 1000, or use fraction like 0.10)
-- `alpha`: Ridge regularization strength
+- `k`: Number of residual neighbors (default: `"auto"` = 10% of samples)
+- `alpha_global`: Ridge regularization for global model (default: 1.0)
+- `alpha_local`: Ridge regularization for local models (default: 0.01)
 - `triage_percentile`: Fraction of high-uncertainty cases to flag
 
 ### BimodalityDiagnostic
